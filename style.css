@@ -1,19 +1,17 @@
 :root {
-  /* Estética Sétimo Mar - Tema Claro (Pergaminho, Carmesim e Ouro) */
   --text: #4a3b32;
   --text-h: #2d1b11;
-  --bg: #f4ecd8; /* Tom de pergaminho */
+  --bg: #f4ecd8;
   --border: #d4c4a8;
   --code-bg: #e8dbbf;
-  --accent: #9b1c1c; /* Vermelho Carmesim */
+  --accent: #9b1c1c; 
   --accent-hover: #7a1515;
   --accent-bg: rgba(155, 28, 28, 0.1);
   --accent-border: rgba(155, 28, 28, 0.4);
   --gold: #b8860b;
   --gold-bg: rgba(184, 134, 11, 0.15);
   --shadow: rgba(0, 0, 0, 0.15) 0 4px 6px -1px;
-  
-  /* Fontes: Serif clássica para o clima de renascença/pirataria */
+
   --sans: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
   --mono: 'Courier New', Courier, monospace;
 
@@ -26,10 +24,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Tema Escuro (Porão de Navio / Noite no Mar) */
     --text: #d1c4b5;
     --text-h: #f4ecd8;
-    --bg: #1e1b18; /* Madeira escura */
+    --bg: #1e1b18;
     --border: #3a322b;
     --code-bg: #2a241f;
     --accent: #c62828;
@@ -100,7 +97,6 @@ input[type="number"] {
   color: var(--text-h);
 }
 
-/* Estilo dos Botões Principais */
 button {
   width: 100%;
   font-family: var(--sans);
@@ -136,7 +132,6 @@ button:active {
   background: #d4af37;
 }
 
-/* Resultados das Apostas */
 #results {
   margin-top: 20px;
 }
@@ -160,7 +155,6 @@ button:active {
   font-weight: bold;
 }
 
-/* Estilo dos Dados Interativos */
 .die-btn {
   display: inline-block;
   width: 26px;
