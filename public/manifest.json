@@ -1,0 +1,10 @@
+{
+  "name": "Rolagem 7º Mar",
+  "version": "1.0.0",
+  "manifest_version": 1,
+  "action": {
+    "title": "7º Mar",
+    "icon": "/icon.svg",
+    "popover": "/"
+  }
+}
