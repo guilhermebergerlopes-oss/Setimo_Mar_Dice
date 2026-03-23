@@ -58,12 +58,219 @@ function calculateRaises(diceArray, t1, t2) {
 const ROLL_CHANNEL = "setimo-mar/rolagem";
 
 OBR.onReady(() => {
-  OBR.action.setWidth(400);
+  OBR.action.setWidth(450);
   OBR.action.setHeight(500);
+
+  const atributos = ["Vigor", "Finesse", "Determinação", "Argúcia", "Panache"];
+  const pericias = ["Arte da Guerra", "Armas", "Atletismo", "Atuar", "Briga", "Cavalgar", "Convencer", "Empatia", "Erudição", "Esconder", "Furto", "Intimidar", "Mirar", "Navegar", "Observar", "Seduzir"];
 
   OBR.broadcast.onMessage(ROLL_CHANNEL, (event) => {
     OBR.notification.show(event.data, "SUCCESS");
   });
+
+  // --- 1. LÓGICA DE NAVEGAÇÃO DAS ABAS ---
+  function initTabs() {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Remove a classe 'active' de todas as abas e botões
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        
+        // Adiciona a classe 'active' no botão clicado e na div correspondente
+        btn.classList.add('active');
+        const targetId = btn.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+      });
+    });
+  }
+
+  function initFicha() {
+    const atributosContainer = document.getElementById('atributos-container');
+    const periciasContainer = document.getElementById('pericias-container');
+
+    const createCirclesHtml = (currentVal, maxVal = 5) => {
+      let circlesHtml = '';
+      for (let i = 1; i <= maxVal; i++) {
+        const isFilled = i <= currentVal ? 'filled' : '';
+        circlesHtml += `<div class="circle-rating ${isFilled}" data-value="${i}"></div>`;
+      }
+      return circlesHtml;
+    };
+
+    const renderTraitList = (items, container, defaultVal) => {
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'trait-row';
+        // Adicionado o botão "✖" para zerar
+        row.innerHTML = `
+          <span class="trait-label">${item}</span>
+          <div class="circles-container" data-trait-name="${item}">
+            ${createCirclesHtml(defaultVal)}
+            <span class="clear-trait" title="Zerar" style="cursor:pointer; margin-left: 8px; font-size: 14px; color: var(--accent, #9b1c1c); user-select: none;">✖</span>
+          </div>
+        `;
+        
+        const circles = row.querySelectorAll('.circle-rating');
+        const clearBtn = row.querySelector('.clear-trait');
+
+        circles.forEach(circle => {
+          circle.addEventListener('click', (e) => {
+            const clickedValue = parseInt(e.target.dataset.value);
+            const parentContainer = e.target.closest('.circles-container');
+            const allCirclesInRow = parentContainer.querySelectorAll('.circle-rating');
+            
+            allCirclesInRow.forEach(c => {
+              const circleVal = parseInt(c.dataset.value);
+              if (circleVal <= clickedValue) {
+                c.classList.add('filled');
+              } else {
+                c.classList.remove('filled');
+              }
+            });
+          });
+        });
+
+        // Lógica de zerar a perícia/atributo
+        clearBtn.addEventListener('click', (e) => {
+           const parentContainer = e.target.closest('.circles-container');
+           const allCirclesInRow = parentContainer.querySelectorAll('.circle-rating');
+           allCirclesInRow.forEach(c => c.classList.remove('filled'));
+        });
+
+        container.appendChild(row);
+      });
+    };
+
+    renderTraitList(atributos, atributosContainer, 2);
+    renderTraitList(pericias, periciasContainer, 0);
+  }
+
+  function initEspiral() {
+    const track = document.getElementById('espiral-track');
+    const resetBtn = document.getElementById('resetWounds');
+    let html = '';
+
+    const totalWounds = 20;
+    const centerX = 90;
+    const centerY = 90;
+    
+    // Variáveis para matemática de espaçamento constante
+    let angle = -Math.PI / 2; // Começa no topo (12 horas)
+    let radius = 75;          // Raio inicial (na borda)
+    const radiusStep = 2.4;   // O quanto o raio encolhe a cada passo
+    const arcLength = 20;     // Distância visual fixa entre as bolinhas
+
+    for (let i = 1; i <= totalWounds; i++) {
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+
+      const isDramatic = i % 5 === 0;
+      const dramaticId = isDramatic ? i / 5 : '';
+
+      const contentHtml = isDramatic 
+        ? `<span class="wound-star">&#9733;</span><span style="font-size:10px; position:absolute;">${dramaticId}</span>` 
+        : `<div class="wound-dot">${i}</div>`;
+
+      html += `
+        <div class="espiral-item" 
+             style="left: ${x}px; top: ${y}px;" 
+             data-wound-value="${i}">
+          ${contentHtml}
+        </div>
+      `;
+      
+      // Prepara os valores para o próximo item da espiral
+      radius -= radiusStep;
+      angle += arcLength / radius; // Incrementa o ângulo baseado no raio atual para manter a distância
+    }
+    
+    track.innerHTML = html;
+
+    const spiralItems = track.querySelectorAll('.espiral-item');
+
+    if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      spiralItems.forEach(si => si.classList.remove('filled'));
+      
+      // Opcional: Desmarcar a explosão de 10 se o dano for zerado
+      const explodingDiceCheck = document.getElementById("explodingDice");
+      if (explodingDiceCheck) {
+        explodingDiceCheck.checked = false; 
+      }
+      
+      console.log("Ferimentos zerados!");
+    });
+  }
+
+    spiralItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        const currentTarget = e.target.closest('.espiral-item');
+        
+        // CORREÇÃO: Usar dataset.woundValue em vez de dataset.wound-value
+        const clickedValue = parseInt(currentTarget.dataset.woundValue);
+        
+        spiralItems.forEach(si => {
+          const val = parseInt(si.dataset.woundValue);
+          if (val <= clickedValue) {
+            si.classList.add('filled');
+          } else {
+            si.classList.remove('filled');
+          }
+        });
+
+        const explodingDiceCheck = document.getElementById("explodingDice");
+        if (explodingDiceCheck && clickedValue >= 15) {
+          explodingDiceCheck.checked = true;
+        }
+      });
+    });
+  }
+
+  function initRollTab() {
+    const attrSelect = document.getElementById('rollAttribute');
+    const skillSelect = document.getElementById('rollSkill');
+
+    atributos.forEach(attr => {
+      const opt = document.createElement('option');
+      opt.value = attr;
+      opt.textContent = attr;
+      attrSelect.appendChild(opt);
+    });
+
+    const optNoneSkill = document.createElement('option');
+    optNoneSkill.value = "Nenhuma";
+    optNoneSkill.textContent = "- Nenhuma -";
+    skillSelect.appendChild(optNoneSkill);
+
+    const optNoneAttr = document.createElement('option');
+    optNoneAttr.value = "Nenhum";
+    optNoneAttr.textContent = "- Nenhum -";
+    attrSelect.appendChild(optNoneAttr);
+
+    pericias.forEach(pericia => {
+      const opt = document.createElement('option');
+      opt.value = pericia;
+      opt.textContent = pericia;
+      skillSelect.appendChild(opt);
+    });
+  }
+
+  // Função helper para varrer a DOM e contar as bolinhas preenchidas
+  function getTraitValue(traitName) {
+    if (traitName === "Nenhuma") return 0;
+    const container = document.querySelector(`.circles-container[data-trait-name="${traitName}"]`);
+    if (!container) return 0;
+    return container.querySelectorAll('.circle-rating.filled').length;
+  }
+
+  // Inicializa tudo
+  initTabs();
+  initFicha();
+  initEspiral();
+  initRollTab();
 
   const rollButton = document.getElementById("rollButton");
   const resultsDiv = document.getElementById("results");
@@ -145,8 +352,25 @@ OBR.onReady(() => {
   }
 
   rollButton.addEventListener("click", async () => {
-    const poolSize = parseInt(document.getElementById("dicePool").value);
+    // 1. Pegamos os nomes selecionados e o bônus digitado
+    const attrName = document.getElementById("rollAttribute").value;
+    const skillName = document.getElementById("rollSkill").value;
+    const bonus = parseInt(document.getElementById("rollBonus").value) || 0;
 
+    // 2. Buscamos o valor (bolinhas preenchidas) usando a sua função
+    const attrVal = getTraitValue(attrName);
+    const skillVal = getTraitValue(skillName);
+
+    // 3. Somamos tudo para criar a parada de dados (Pool Size)
+    const poolSize = attrVal + skillVal + bonus;
+
+    // Prevenção: não rolar se a parada for zero ou negativa
+    if (poolSize <= 0) {
+      OBR.notification.show("A parada de dados precisa ser de pelo menos 1 dado.", "WARNING");
+      return;
+    }
+
+    // O resto da sua lógica continua igual...
     rollConfig.isExploding = document.getElementById("explodingDice").checked;
     rollConfig.isDangerPoint = document.getElementById("dangerPoint").checked;
     rollConfig.hasDoubleRaise = document.getElementById("doubleRaiseAdvantage").checked;

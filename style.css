@@ -65,7 +65,7 @@ h3 {
 .form-group {
   margin-bottom: 12px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 4px;
 }
 
@@ -199,4 +199,190 @@ button:active {
   color: var(--text);
   margin-top: 10px;
   font-style: italic;
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 15px;
+  border-bottom: 2px solid var(--accent);
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  color: var(--text-h);
+  border: none;
+  border-radius: 4px 4px 0 0;
+  box-shadow: none;
+  margin-top: 0;
+  padding: 8px 5px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.tab-btn.active {
+  background: var(--accent);
+  color: white;
+  opacity: 1;
+}
+
+.tab-btn:hover:not(.active) {
+  background: var(--accent-bg);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.ficha-sections-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.ficha-section h4 {
+  border-bottom: 2px solid #811313; /* Vermelho 7Mar */
+  color: #f52525;
+  margin-bottom: 8px;
+  padding-bottom: 3px;
+}
+
+.trait-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.trait-label {
+  font-weight: bold;
+  font-size: 14px;
+  color: #aaa9a9;
+}
+
+.circles-container {
+  display: flex;
+  gap: 4px;
+}
+
+/* A "bolinha" interativa */
+.circle-rating {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #555;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+/* Bolinha preenchida */
+.circle-rating.filled {
+  background-color: #811313; /* Ou #811313 se quiser vermelho */
+  border-color: #811313;
+}
+
+/* Efeito de hover para feedback */
+.circle-rating:hover {
+  background-color: #ccc;
+}
+.circle-rating.filled:hover {
+  background-color: #555;
+}
+
+/* --- NOVOS ESTILOS: ESPIRAL DA MORTE CORRIGIDA --- */
+.espiral-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.espiral-main-area {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.espiral-legendas {
+  flex: 1;
+  font-size: 12px;
+  color: #555;
+  padding-right: 10px;
+}
+
+.espiral-track-svg-container {
+  flex: 1;
+  position: relative;
+  width: 180px;
+  height: 180px;
+}
+
+.espiral-track {
+  width: 100%;
+  height: 100%;
+  position: relative; /* Essencial para absolute dos filhos */
+}
+
+/* Itens da espiral posicionados via JS (top/left) */
+.espiral-item {
+  position: absolute;
+  transform: translate(-50%, -50%); /* Centraliza no ponto */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+/* Estilo padrão da bolinha de ferimento */
+.wound-dot {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #555;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: bold;
+  background-color: white;
+}
+
+/* Estilo da Estrela de Ferimento Dramático */
+.wound-star {
+  font-size: 24px;
+  color: #f5f4f3;
+}
+
+/* Estados Preenchidos (Preto para ferimento, Vermelho para estrela) */
+.espiral-item.filled .wound-dot {
+  background-color: #333;
+  color: white;
+  border-color: #333;
+}
+
+.espiral-item.filled .wound-star {
+  color: #d81515; /* Mantém vermelho ou muda se quiser */
+}
+
+.row-group {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+.row-group > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+select {
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  color: var(--text-h);
+  font-family: var(--sans);
+  font-size: 14px;
 }

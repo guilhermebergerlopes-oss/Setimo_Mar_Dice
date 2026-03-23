@@ -6,32 +6,91 @@
   </head>
   <body>
     <div id="app">
-      <h3>Rolagem 7º Mar 2E</h3>
+      <h3>7º Mar 2E</h3>
       
-      <div class="form-group">
-        <label>Dados (d10):</label>
-        <input type="number" id="dicePool" value="5" min="1" max="30" style="width: 50px;" />
-      </div>
-      
-      <div class="checkbox-group">
-        <input type="checkbox" id="explodingDice" checked />
-        <label for="explodingDice">Dados Explosivos (10 rola de novo)</label>
+      <div class="tabs">
+        <button class="tab-btn active" data-target="aba-rolagem">Rolagem</button>
+        <button class="tab-btn" data-target="aba-ficha">Ficha</button>
+        <button class="tab-btn" data-target="aba-espiral">Espiral</button>
       </div>
 
-      <div class="checkbox-group">
-        <input type="checkbox" id="dangerPoint" />
-        <label for="dangerPoint"><strong>Ponto de Perigo</strong> (Dificuldade +5)</label>
+      <div id="aba-rolagem" class="tab-content active">
+        <div class="form-group row-group">
+          <div>
+            <label>Atributo:</label>
+            <select id="rollAttribute"></select>
+          </div>
+          <div>
+            <label>Perícia:</label>
+            <select id="rollSkill"></select>
+          </div>
+          <div>
+            <label>Bônus:</label>
+            <input type="number" id="rollBonus" value="0" style="width: 50px;" />
+          </div>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="explodingDice" checked />
+          <label for="explodingDice">Dados Explosivos (10 rola de novo)</label>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="dangerPoint" />
+          <label for="dangerPoint"><strong>Ponto de Perigo</strong> (Dificuldade +5)</label>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="doubleRaiseAdvantage" />
+          <label for="doubleRaiseAdvantage">15 rende <strong>2 Apostas</strong></label>
+        </div>
+
+        <button id="rollButton">Rolar Dados</button>
+        <button id="clearButton" style="margin-top: 5px; background-color: #f5f5f5; color: #333; border: 1px solid #ccc;">Limpar</button>
+
+        <div id="results"></div>
       </div>
 
-      <div class="checkbox-group">
-        <input type="checkbox" id="doubleRaiseAdvantage" />
-        <label for="doubleRaiseAdvantage">15 rende <strong>2 Apostas</strong></label>
+      <div id="aba-ficha" class="tab-content">
+        <div class="ficha-sections-container">
+          <div class="ficha-section">
+            <h4>Atributos</h4>
+            <div id="atributos-container">
+              </div>
+          </div>
+          
+          <div class="ficha-section">
+            <h4>Perícias</h4>
+            <div id="pericias-container">
+              </div>
+          </div>
+        </div>
       </div>
 
-      <button id="rollButton">Rolar Dados</button>
-      <button id="clearButton" style="margin-top: 5px; background-color: #f5f5f5; color: #333; border: 1px solid #ccc;">Limpar</button>
+      <div id="aba-espiral" class="tab-content">
+        <div class="espiral-wrapper">
+          <p class="espiral-desc">Marque o dano. Estrelas representam ferimentos dramáticos.</p>
+          
+          <button id="resetWounds" style="margin-bottom: 10px; background-color: #111111; border: 1px solid #ccc; cursor: pointer;">
+            Zerar Ferimentos
+          </button>
 
-      <div id="results"></div>
+          <div class="espiral-main-area">
+            <div class="espiral-legendas">
+              <p><strong>1 (5):</strong> +1 Dado em todos os Riscos</p>
+              <p><strong>2 (10):</strong> Vilãs recebem +2 Dados</p>
+              <p><strong>3 (15):</strong> Exploda seus 10s (+1 dado)</p>
+              <p><strong>4 (20):</strong> Você se torna Desamparada</p>
+            </div>
+
+            <div class="espiral-track-svg-container">
+              <div class="espiral-track" id="espiral-track">
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
     <script type="module" src="/main.js"></script>
   </body>
