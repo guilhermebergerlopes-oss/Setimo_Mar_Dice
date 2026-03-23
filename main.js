@@ -59,6 +59,12 @@ OBR.onReady(() => {
   OBR.action.setWidth(320);
   OBR.action.setHeight(500);
 
+  const ROLL_CHANNEL = "setimo-mar/rolagem";
+
+  OBR.broadcast.onMessage(ROLL_CHANNEL, (event) => {
+    OBR.notification.show(event.data, "SUCCESS");
+  });
+
   const rollButton = document.getElementById("rollButton");
   const resultsDiv = document.getElementById("results");
 
@@ -104,7 +110,7 @@ OBR.onReady(() => {
 
     const rerollBtn = document.getElementById('rerollButton');
     if (rerollBtn) {
-      rerollBtn.addEventListener('click', () => {
+      rerollBtn.addEventListener('click', async () => {
         const selectedElements = resultsDiv.querySelectorAll('.die-btn.selected');
         if (selectedElements.length === 0) return;
 
@@ -123,12 +129,18 @@ OBR.onReady(() => {
 
         updateDisplay();
 
-        OBR.notification.show(`Rerolou ${valuesToReroll.length} dados.\nNovos resultados: [${newRolls.join(", ")}]`, "DEFAULT");
+
+
+        const playerName = await OBR.player.getName();
+        const msgReroll = `${playerName} rerolou ${valuesToReroll.length} dados.\nNovos resultados: [${newRolls.join(", ")}]`;
+
+        OBR.notification.show(msgReroll, "DEFAULT");
+        OBR.broadcast.sendMessage(ROLL_CHANNEL, msgReroll);
       });
     }
   }
 
-  rollButton.addEventListener("click", () => {
+  rollButton.addEventListener("click", async () => {
     const poolSize = parseInt(document.getElementById("dicePool").value);
     rollConfig.isExploding = document.getElementById("explodingDice").checked;
     rollConfig.isDangerPoint = document.getElementById("dangerPoint").checked;
@@ -138,8 +150,13 @@ OBR.onReady(() => {
     
     updateDisplay();
 
+    const playerName = await OBR.player.getName();
+
     const dangerText = rollConfig.isDangerPoint ? " (Com Ponto de Perigo)" : "";
-    const message = `Rolou ${poolSize}d10${dangerText}.\nResultados Iniciais: [${currentRolls.join(", ")}]`;
+    const message = `${playerName} rolou ${poolSize}d10${dangerText}.\nDados Iniciais: [${currentRolls.join(", ")}]`;
+
     OBR.notification.show(message, "SUCCESS");
+
+    OBR.broadcast.sendMessage(ROLL_CHANNEL, message);
   });
 });
