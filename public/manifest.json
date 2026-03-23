@@ -1,10 +1,14 @@
 {
   "name": "Rolagem 7º Mar",
   "version": "1.0.0",
-  "manifest_version": 1,
+  "author": "Iguana",
+  "manifest_version": 2,
+  "description": "Rolador de dados simple para 7 Mar 2e",
   "action": {
     "title": "7º Mar",
     "icon": "/icon.svg",
-    "popover": "/"
+    "popover": "/",
+    "height": 700,
+    "width": 375
   }
 }
