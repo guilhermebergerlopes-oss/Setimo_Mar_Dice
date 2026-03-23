@@ -87,6 +87,12 @@ input[type="number"] {
   text-align: center;
 }
 
+.checkbox-group input[type="checkbox"] {
+  transform: scale(1.5);
+  margin-right: 10px; 
+  cursor: pointer;
+}
+
 .checkbox-group {
   display: flex;
   align-items: center;

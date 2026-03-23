@@ -58,7 +58,7 @@ function calculateRaises(diceArray, t1, t2) {
 const ROLL_CHANNEL = "setimo-mar/rolagem";
 
 OBR.onReady(() => {
-  OBR.action.setWidth(320);
+  OBR.action.setWidth(400);
   OBR.action.setHeight(500);
 
   OBR.broadcast.onMessage(ROLL_CHANNEL, (event) => {
@@ -89,11 +89,11 @@ OBR.onReady(() => {
       const cssClass = group.raises === 2 ? "raise-group double" : "raise-group";
       const label = group.raises === 2 ? "(2 Apostas)" : "(1 Aposta)";
       const diceHtml = group.dice.map(renderDie).join(" + ");
-      htmlOutput += `<div class="${cssClass}">Grupo ${index + 1}: [${diceHtml}] = ${group.sum} <em>${label}</em></div>`;
+      htmlOutput += `<div class="${cssClass}">Grupo ${index + 1}: [${diceHtml}] = ${group.sum} <br> <em>${label}</em></div>`;
     });
     
     const unusedHtml = unused.map(renderDie).join(" ");
-    htmlOutput += `<div style="margin-top: 10px; color: #666;"><em>Dados não utilizados: ${unusedHtml || "Nenhum"}</em></div>`;
+    htmlOutput += `<div style="margin-top: 10px; color: #666;"><em>Resultados não utilizados: ${unusedHtml || "Nenhum"}</em></div>`;
 
     if (currentRolls.length > 0) {
       htmlOutput += `<button id="rerollButton" class="reroll-btn">Rerolar Selecionados</button>`;
@@ -170,5 +170,12 @@ OBR.onReady(() => {
     OBR.notification.show(message, "SUCCESS");
 
     OBR.broadcast.sendMessage(ROLL_CHANNEL, message);
+  });
+
+  const clearButton = document.getElementById("clearButton");
+
+  clearButton.addEventListener("click", () => {
+    currentRolls = [];
+    resultsDiv.innerHTML = ""; 
   });
 });
