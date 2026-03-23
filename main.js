@@ -88,6 +88,13 @@ OBR.onReady(() => {
     const atributosContainer = document.getElementById('atributos-container');
     const periciasContainer = document.getElementById('pericias-container');
 
+    const getSavedFicha = () => JSON.parse(localStorage.getItem('setimoMarFicha') || '{}');
+    const saveFicha = (trait, value) => {
+      const ficha = getSavedFicha();
+      ficha[trait] = value;
+      localStorage.setItem('setimoMarFicha', JSON.stringify(ficha));
+    };
+
     const createCirclesHtml = (currentVal, maxVal = 5) => {
       let circlesHtml = '';
       for (let i = 1; i <= maxVal; i++) {
@@ -98,14 +105,18 @@ OBR.onReady(() => {
     };
 
     const renderTraitList = (items, container, defaultVal) => {
+      const savedData = getSavedFicha();
+
       items.forEach(item => {
         const row = document.createElement('div');
         row.className = 'trait-row';
-        // Adicionado o botão "✖" para zerar
+        
+        const startVal = savedData[item] !== undefined ? savedData[item] : defaultVal;
+
         row.innerHTML = `
           <span class="trait-label">${item}</span>
           <div class="circles-container" data-trait-name="${item}">
-            ${createCirclesHtml(defaultVal)}
+            ${createCirclesHtml(startVal)}
             <span class="clear-trait" title="Zerar" style="cursor:pointer; margin-left: 8px; font-size: 14px; color: var(--accent, #9b1c1c); user-select: none;">✖</span>
           </div>
         `;
@@ -127,14 +138,17 @@ OBR.onReady(() => {
                 c.classList.remove('filled');
               }
             });
+
+            saveFicha(item, clickedValue);
           });
         });
 
-        // Lógica de zerar a perícia/atributo
         clearBtn.addEventListener('click', (e) => {
            const parentContainer = e.target.closest('.circles-container');
            const allCirclesInRow = parentContainer.querySelectorAll('.circle-rating');
            allCirclesInRow.forEach(c => c.classList.remove('filled'));
+
+           saveFicha(item, 0);
         });
 
         container.appendChild(row);
@@ -154,7 +168,6 @@ OBR.onReady(() => {
     const centerX = 90;
     const centerY = 90;
     
-
     let angle = -Math.PI / 2; 
     let radius = 75;     
     const radiusStep = 2.4;
@@ -187,23 +200,34 @@ OBR.onReady(() => {
 
     const spiralItems = track.querySelectorAll('.espiral-item');
 
-    if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      spiralItems.forEach(si => si.classList.remove('filled'));
-
-      const explodingDiceCheck = document.getElementById("explodingDice");
-      if (explodingDiceCheck) {
-        explodingDiceCheck.checked = false; 
+    const savedWounds = parseInt(localStorage.getItem('setimoMarWounds') || '0');
+    spiralItems.forEach(si => {
+      if (parseInt(si.dataset.woundValue) <= savedWounds) {
+        si.classList.add('filled');
       }
-      
-      console.log("Ferimentos zerados!");
     });
-  }
+
+    const explodingDiceCheck = document.getElementById("explodingDice");
+    if (explodingDiceCheck && savedWounds >= 15) {
+      explodingDiceCheck.checked = true;
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        spiralItems.forEach(si => si.classList.remove('filled'));
+
+        if (explodingDiceCheck) {
+          explodingDiceCheck.checked = false; 
+        }
+
+        localStorage.setItem('setimoMarWounds', 0);
+        console.log("Ferimentos zerados!");
+      });
+    }
 
     spiralItems.forEach(item => {
       item.addEventListener('click', (e) => {
         const currentTarget = e.target.closest('.espiral-item');
-
         const clickedValue = parseInt(currentTarget.dataset.woundValue);
         
         spiralItems.forEach(si => {
@@ -215,10 +239,11 @@ OBR.onReady(() => {
           }
         });
 
-        const explodingDiceCheck = document.getElementById("explodingDice");
         if (explodingDiceCheck && clickedValue >= 15) {
           explodingDiceCheck.checked = true;
         }
+
+        localStorage.setItem('setimoMarWounds', clickedValue);
       });
     });
   }
