@@ -245,7 +245,7 @@ button:active {
 }
 
 .ficha-section h4 {
-  border-bottom: 2px solid #811313; /* Vermelho 7Mar */
+  border-bottom: 2px solid #811313;
   color: #f52525;
   margin-bottom: 8px;
   padding-bottom: 3px;
@@ -269,7 +269,6 @@ button:active {
   gap: 4px;
 }
 
-/* A "bolinha" interativa */
 .circle-rating {
   width: 16px;
   height: 16px;
@@ -279,13 +278,11 @@ button:active {
   transition: background-color 0.2s;
 }
 
-/* Bolinha preenchida */
 .circle-rating.filled {
-  background-color: #811313; /* Ou #811313 se quiser vermelho */
+  background-color: #811313;
   border-color: #811313;
 }
 
-/* Efeito de hover para feedback */
 .circle-rating:hover {
   background-color: #ccc;
 }
@@ -293,7 +290,6 @@ button:active {
   background-color: #555;
 }
 
-/* --- NOVOS ESTILOS: ESPIRAL DA MORTE CORRIGIDA --- */
 .espiral-wrapper {
   display: flex;
   flex-direction: column;
@@ -324,13 +320,12 @@ button:active {
 .espiral-track {
   width: 100%;
   height: 100%;
-  position: relative; /* Essencial para absolute dos filhos */
+  position: relative;
 }
 
-/* Itens da espiral posicionados via JS (top/left) */
 .espiral-item {
   position: absolute;
-  transform: translate(-50%, -50%); /* Centraliza no ponto */
+  transform: translate(-50%, -50%);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -338,7 +333,6 @@ button:active {
   user-select: none;
 }
 
-/* Estilo padrão da bolinha de ferimento */
 .wound-dot {
   width: 18px;
   height: 18px;
@@ -349,13 +343,11 @@ button:active {
   background-color: white;
 }
 
-/* Estilo da Estrela de Ferimento Dramático */
 .wound-star {
   font-size: 24px;
   color: #f5f4f3;
 }
 
-/* Estados Preenchidos (Preto para ferimento, Vermelho para estrela) */
 .espiral-item.filled .wound-dot {
   background-color: #333;
   color: white;
@@ -363,7 +355,7 @@ button:active {
 }
 
 .espiral-item.filled .wound-star {
-  color: #d81515; /* Mantém vermelho ou muda se quiser */
+  color: #d81515;
 }
 
 .row-group {

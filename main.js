@@ -68,18 +68,15 @@ OBR.onReady(() => {
     OBR.notification.show(event.data, "SUCCESS");
   });
 
-  // --- 1. LÓGICA DE NAVEGAÇÃO DAS ABAS ---
   function initTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        // Remove a classe 'active' de todas as abas e botões
         tabBtns.forEach(b => b.classList.remove('active'));
         tabContents.forEach(c => c.classList.remove('active'));
-        
-        // Adiciona a classe 'active' no botão clicado e na div correspondente
+
         btn.classList.add('active');
         const targetId = btn.getAttribute('data-target');
         document.getElementById(targetId).classList.add('active');
@@ -157,11 +154,11 @@ OBR.onReady(() => {
     const centerX = 90;
     const centerY = 90;
     
-    // Variáveis para matemática de espaçamento constante
-    let angle = -Math.PI / 2; // Começa no topo (12 horas)
-    let radius = 75;          // Raio inicial (na borda)
-    const radiusStep = 2.4;   // O quanto o raio encolhe a cada passo
-    const arcLength = 20;     // Distância visual fixa entre as bolinhas
+
+    let angle = -Math.PI / 2; 
+    let radius = 75;     
+    const radiusStep = 2.4;
+    const arcLength = 20;
 
     for (let i = 1; i <= totalWounds; i++) {
       const x = centerX + radius * Math.cos(angle);
@@ -182,9 +179,8 @@ OBR.onReady(() => {
         </div>
       `;
       
-      // Prepara os valores para o próximo item da espiral
       radius -= radiusStep;
-      angle += arcLength / radius; // Incrementa o ângulo baseado no raio atual para manter a distância
+      angle += arcLength / radius;
     }
     
     track.innerHTML = html;
@@ -194,8 +190,7 @@ OBR.onReady(() => {
     if (resetBtn) {
     resetBtn.addEventListener('click', () => {
       spiralItems.forEach(si => si.classList.remove('filled'));
-      
-      // Opcional: Desmarcar a explosão de 10 se o dano for zerado
+
       const explodingDiceCheck = document.getElementById("explodingDice");
       if (explodingDiceCheck) {
         explodingDiceCheck.checked = false; 
@@ -208,8 +203,7 @@ OBR.onReady(() => {
     spiralItems.forEach(item => {
       item.addEventListener('click', (e) => {
         const currentTarget = e.target.closest('.espiral-item');
-        
-        // CORREÇÃO: Usar dataset.woundValue em vez de dataset.wound-value
+
         const clickedValue = parseInt(currentTarget.dataset.woundValue);
         
         spiralItems.forEach(si => {
@@ -258,7 +252,6 @@ OBR.onReady(() => {
     });
   }
 
-  // Função helper para varrer a DOM e contar as bolinhas preenchidas
   function getTraitValue(traitName) {
     if (traitName === "Nenhuma") return 0;
     const container = document.querySelector(`.circles-container[data-trait-name="${traitName}"]`);
@@ -266,7 +259,6 @@ OBR.onReady(() => {
     return container.querySelectorAll('.circle-rating.filled').length;
   }
 
-  // Inicializa tudo
   initTabs();
   initFicha();
   initEspiral();
@@ -352,25 +344,21 @@ OBR.onReady(() => {
   }
 
   rollButton.addEventListener("click", async () => {
-    // 1. Pegamos os nomes selecionados e o bônus digitado
+
     const attrName = document.getElementById("rollAttribute").value;
     const skillName = document.getElementById("rollSkill").value;
     const bonus = parseInt(document.getElementById("rollBonus").value) || 0;
 
-    // 2. Buscamos o valor (bolinhas preenchidas) usando a sua função
     const attrVal = getTraitValue(attrName);
     const skillVal = getTraitValue(skillName);
 
-    // 3. Somamos tudo para criar a parada de dados (Pool Size)
     const poolSize = attrVal + skillVal + bonus;
 
-    // Prevenção: não rolar se a parada for zero ou negativa
     if (poolSize <= 0) {
       OBR.notification.show("A parada de dados precisa ser de pelo menos 1 dado.", "WARNING");
       return;
     }
 
-    // O resto da sua lógica continua igual...
     rollConfig.isExploding = document.getElementById("explodingDice").checked;
     rollConfig.isDangerPoint = document.getElementById("dangerPoint").checked;
     rollConfig.hasDoubleRaise = document.getElementById("doubleRaiseAdvantage").checked;
