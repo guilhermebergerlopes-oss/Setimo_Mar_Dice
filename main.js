@@ -55,11 +55,11 @@ function calculateRaises(diceArray, t1, t2) {
   return { groups, totalRaises, unused: currentDice };
 }
 
+const ROLL_CHANNEL = "setimo-mar/rolagem";
+
 OBR.onReady(() => {
   OBR.action.setWidth(320);
   OBR.action.setHeight(500);
-
-  const ROLL_CHANNEL = "setimo-mar/rolagem";
 
   OBR.broadcast.onMessage(ROLL_CHANNEL, (event) => {
     OBR.notification.show(event.data, "SUCCESS");
@@ -108,52 +108,64 @@ OBR.onReady(() => {
       });
     });
 
-    const rerollBtn = document.getElementById('rerollButton');
-    if (rerollBtn) {
-      rerollBtn.addEventListener('click', async () => {
-        const selectedElements = resultsDiv.querySelectorAll('.die-btn.selected');
-        if (selectedElements.length === 0) return;
+  const rerollBtn = document.getElementById('rerollButton');
+  if (rerollBtn) {
+    rerollBtn.addEventListener('click', async () => {
+      const selectedElements = resultsDiv.querySelectorAll('.die-btn.selected');
+      if (selectedElements.length === 0) return;
 
-        const valuesToReroll = Array.from(selectedElements).map(el => parseInt(el.dataset.value));
+      const valuesToReroll = Array.from(selectedElements).map(el => parseInt(el.dataset.value));
 
-        valuesToReroll.forEach(val => {
-          const index = currentRolls.indexOf(val);
-          if (index > -1) {
-            currentRolls.splice(index, 1);
-          }
-        });
-
-        const newRolls = rollDice(valuesToReroll.length, rollConfig.isExploding);
-
-        currentRolls.push(...newRolls);
-
-        updateDisplay();
-
-
-
-        const playerName = await OBR.player.getName();
-        const msgReroll = `${playerName} rerolou ${valuesToReroll.length} dados.\nNovos resultados: [${newRolls.join(", ")}]`;
-
-        OBR.notification.show(msgReroll, "DEFAULT");
-        OBR.broadcast.sendMessage(ROLL_CHANNEL, msgReroll);
+      valuesToReroll.forEach(val => {
+        const index = currentRolls.indexOf(val);
+        if (index > -1) {
+          currentRolls.splice(index, 1);
+        }
       });
-    }
+
+      const newRolls = rollDice(valuesToReroll.length, rollConfig.isExploding);
+      currentRolls.push(...newRolls);
+
+      updateDisplay();
+
+      let t1 = rollConfig.isDangerPoint ? 15 : 10;
+      let t2 = rollConfig.hasDoubleRaise ? (rollConfig.isDangerPoint ? 20 : 15) : null;
+
+      const { totalRaises } = calculateRaises(currentRolls, t1, t2);
+
+      const playerName = await OBR.player.getName();
+      const apostaTexto = totalRaises === 1 ? "1 Aposta" : `${totalRaises} Apostas`;
+
+      const msgReroll = `${playerName} rerolou ${valuesToReroll.length} dados e agora tem ${apostaTexto}!\nNovos resultados: [${newRolls.join(", ")}]`;
+
+      OBR.notification.show(msgReroll, "DEFAULT");
+      OBR.broadcast.sendMessage(ROLL_CHANNEL, msgReroll);
+    });
+  }
   }
 
   rollButton.addEventListener("click", async () => {
     const poolSize = parseInt(document.getElementById("dicePool").value);
+
     rollConfig.isExploding = document.getElementById("explodingDice").checked;
     rollConfig.isDangerPoint = document.getElementById("dangerPoint").checked;
     rollConfig.hasDoubleRaise = document.getElementById("doubleRaiseAdvantage").checked;
-    
+
     currentRolls = rollDice(poolSize, rollConfig.isExploding);
-    
+
+    let t1 = rollConfig.isDangerPoint ? 15 : 10;
+    let t2 = rollConfig.hasDoubleRaise ? (rollConfig.isDangerPoint ? 20 : 15) : null;
+
+    const { totalRaises } = calculateRaises(currentRolls, t1, t2);
+
     updateDisplay();
 
     const playerName = await OBR.player.getName();
 
+    const apostaTexto = totalRaises === 1 ? "1 Aposta" : `${totalRaises} Apostas`;
     const dangerText = rollConfig.isDangerPoint ? " (Com Ponto de Perigo)" : "";
-    const message = `${playerName} rolou ${poolSize}d10${dangerText}.\nDados Iniciais: [${currentRolls.join(", ")}]`;
+    
+    const message = `${playerName} rolou ${poolSize}d10${dangerText} e conseguiu ${apostaTexto}!\nDados: [${currentRolls.join(", ")}]`;
 
     OBR.notification.show(message, "SUCCESS");
 
