@@ -57,9 +57,69 @@ function calculateRaises(diceArray, t1, t2) {
 
 const ROLL_CHANNEL = "setimo-mar/rolagem";
 
+const LOG_METADATA_ID = "setimo-mar/roll-log";
+
+function renderLog(logArray) {
+  const container = document.getElementById("log-container");
+  if (!container) return;
+
+  if (!logArray || logArray.length === 0) {
+    container.innerHTML = `<p style="text-align: center; color: var(--text); opacity: 0.6; margin-top: 20px;">
+      Nenhuma rolagem registrada ainda.
+    </p>`;
+    return;
+  }
+
+  container.innerHTML = [...logArray].reverse().map(entry => `
+    <div class="log-entry">
+      <div class="log-header">
+        <span>${entry.playerName}</span>
+        <span class="log-time">${entry.time}</span>
+      </div>
+      <div class="log-action">${entry.actionText}</div>
+      <div class="log-raises">${entry.raisesText}</div>
+      <div class="log-dice">[ ${entry.rollsText} ]</div>
+    </div>
+  `).join("");
+}
+
+async function addRollToLog(playerName, actionText, raisesText, rollsArray) {
+  const metadata = await OBR.room.getMetadata();
+  let currentLog = metadata[LOG_METADATA_ID] || [];
+
+  const newEntry = {
+    playerName,
+    actionText,
+    raisesText,
+    rollsText: rollsArray.join(", "),
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+
+  currentLog.push(newEntry);
+
+  if (currentLog.length > 50) {
+    currentLog.shift();
+  }
+
+  await OBR.room.setMetadata({ [LOG_METADATA_ID]: currentLog });
+}
+
+
 OBR.onReady(() => {
   OBR.action.setWidth(450);
   OBR.action.setHeight(500);
+
+  OBR.room.getMetadata().then(metadata => {
+    if (metadata) { 
+      renderLog(metadata[LOG_METADATA_ID]);
+    }
+  });
+
+  OBR.room.onMetadataChange((metadata) => {
+    if (metadata) {
+      renderLog(metadata[LOG_METADATA_ID]);
+    }
+  });
 
   const atributos = ["Vigor", "Finesse", "Determinação", "Argúcia", "Panache"];
   const pericias = ["Arte da Guerra", "Armas", "Atletismo", "Atuar", "Briga", "Cavalgar", "Convencer", "Empatia", "Erudição", "Esconder", "Furto", "Intimidar", "Mirar", "Navegar", "Observar", "Seduzir"];
@@ -181,7 +241,7 @@ OBR.onReady(() => {
       const dramaticId = isDramatic ? i / 5 : '';
 
       const contentHtml = isDramatic 
-        ? `<span class="wound-star">&#9733;</span><span style="font-size:10px; position:absolute;">${dramaticId}</span>` 
+        ? `<span class="wound-star">&#10041;</span><span style="font-size:10px; position:absolute;">${dramaticId}</span>` 
         : `<div class="wound-dot">${i}</div>`;
 
       html += `
@@ -364,6 +424,10 @@ OBR.onReady(() => {
 
       OBR.notification.show(msgReroll, "DEFAULT");
       OBR.broadcast.sendMessage(ROLL_CHANNEL, msgReroll);
+
+      const actionText = `Rerolou ${valuesToReroll.length} dados`;
+      await addRollToLog(playerName, actionText, apostaTexto, currentRolls);
+
     });
   }
   }
@@ -407,6 +471,10 @@ OBR.onReady(() => {
     OBR.notification.show(message, "SUCCESS");
 
     OBR.broadcast.sendMessage(ROLL_CHANNEL, message);
+
+    const actionText = `Rolou ${poolSize}d10${dangerText}`;
+    await addRollToLog(playerName, actionText, apostaTexto, currentRolls);
+
   });
 
   const clearButton = document.getElementById("clearButton");
@@ -415,4 +483,20 @@ OBR.onReady(() => {
     currentRolls = [];
     resultsDiv.innerHTML = ""; 
   });
+
+  const clearLogButtonGm = document.getElementById("clearLogButtonGm");
+  if (clearLogButtonGm) {
+    clearLogButtonGm.addEventListener("click", async () => {
+      const role = await OBR.player.getRole();
+      if (role === "GM") {
+        if (window.confirm("Tem certeza que deseja apagar todo o histórico de rolagens?")) {
+          await OBR.room.setMetadata({ [LOG_METADATA_ID]: [] });
+          OBR.notification.show("Log de rolagens limpo.", "SUCCESS");
+        }
+      } else {
+        OBR.notification.show("Apenas o GM pode limpar o log da mesa.", "WARNING");
+      }
+    });
+  }
+
 });
